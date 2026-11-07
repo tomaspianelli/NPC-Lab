@@ -47,7 +47,7 @@ function iniciar(){
     var rig=makeRig(obj), holder=new THREE.Group(), pivot=new THREE.Group(), c=rig.bb.getCenter(new THREE.Vector3());
     rig.obj.position.set(-c.x,-rig.bb.min.y,-c.z);
     pivot.rotation.y=NPC_FACING; pivot.add(rig.obj); holder.add(pivot);
-    holder.scale.setScalar(2.4/rig.H); holder.position.y=-1.03;
+    holder.scale.setScalar(2.3/rig.H); holder.position.y=-1.14;
     S.add(holder); rig.apply(POSES.rest);
 
     var hc=HAIR_MODELS[D.h];
@@ -75,20 +75,20 @@ function iniciar(){
         g.fillStyle='rgba(255,255,255,.06)';
         for(x=0;x<1080;x+=100) g.fillRect(x,0,2,1920);
         for(y=0;y<1920;y+=100) g.fillRect(0,y,1080,2);
-        g.fillStyle='rgba(0,0,0,.55)'; g.beginPath(); g.ellipse(540,1335,230,34,0,0,6.3); g.fill();
+        g.fillStyle='rgba(0,0,0,.55)'; g.beginPath(); g.ellipse(540,1370,230,34,0,0,6.3); g.fill();
         g.drawImage(R.domElement,0,0);
 
         g.textAlign='center';
-        g.fillStyle='#01CBE4'; g.font='600 30px Prompt, sans-serif'; g.fillText('NPC LAB',540,275);
-        g.fillStyle='#fff'; g.font='110px "PP NeueBit", Prompt, sans-serif'; g.fillText('Tu NPC está listo',540,350);
+        g.fillStyle='#01CBE4'; g.font='600 30px Prompt, sans-serif'; g.fillText('NPC LAB',540,262);
+        g.fillStyle='#fff'; g.font='160px "PP NeueBit", Prompt, sans-serif'; g.fillText('Tu NPC está listo',540,400);
         var fs=84; g.font='600 '+fs+'px Prompt, sans-serif';
         while(g.measureText(D.n).width>900&&fs>30){ fs-=4; g.font='600 '+fs+'px Prompt, sans-serif'; }
-        g.fillStyle='#fff'; g.fillText(D.n,540,1440);
+        g.fillStyle='#fff'; g.fillText(D.n,540,1485);
 
         var rows=[['Personalidad',persNombre(),'#1EFF00'],['Movimiento',movNivel(D.v),'#E90BFB'],['Conciencia',D.c,'#5b6bff']];
         g.textAlign='left';
         rows.forEach(function(r,i){
-          var yy=1520+i*70;
+        var yy=1560+i*62;
           g.fillStyle=r[2]; g.fillRect(180,yy-26,26,26);
           g.font='400 34px Prompt, sans-serif'; g.fillText(r[0],225,yy);
           g.fillStyle='#fff'; g.font='600 40px Prompt, sans-serif'; g.fillText(r[1],560,yy);
