@@ -79,7 +79,18 @@ function iniciar(){
         g.drawImage(R.domElement,0,0);
 
         g.textAlign='center';
-        g.fillStyle='#01CBE4'; g.font='600 30px Prompt, sans-serif'; g.fillText('NPC LAB',540,262);
+        var lf=84, lb=282;                                   // lf = tamaño del logo · lb = altura donde apoya
+        g.textAlign='left';
+        g.font='900 '+lf+'px Prompt, sans-serif'; var w1=g.measureText('NPC').width;
+        g.font='300 '+lf+'px Prompt, sans-serif'; var w2=g.measureText('LAB').width;
+        var total=lf*.56+w1+w2+lf*.04, x0=540-total/2, ty=lb-lf*.72, sq=lf*.2;
+        g.fillStyle='#1bff00'; g.fillRect(x0,ty,sq,sq);
+        g.fillStyle='#e50efa'; g.fillRect(x0+lf*.24,ty+lf*.24,sq,sq);
+        g.fillStyle='#0027ff'; g.fillRect(x0,ty+lf*.5,sq,sq);
+        g.fillStyle='#01CBE4';
+        g.font='900 '+lf+'px Prompt, sans-serif'; g.fillText('NPC',x0+lf*.56,lb);
+        g.font='300 '+lf+'px Prompt, sans-serif'; g.fillText('LAB',x0+lf*.56+w1+lf*.04,lb);
+        g.textAlign='center';
         g.fillStyle='#fff'; g.font='160px "PP NeueBit", Prompt, sans-serif'; g.fillText('Tu NPC está listo',540,400);
         var fs=84; g.font='600 '+fs+'px Prompt, sans-serif';
         while(g.measureText(D.n).width>900&&fs>30){ fs-=4; g.font='600 '+fs+'px Prompt, sans-serif'; }
@@ -88,7 +99,7 @@ function iniciar(){
         var rows=[['Personalidad',persNombre(),'#1EFF00'],['Movimiento',movNivel(D.v),'#E90BFB'],['Conciencia',D.c,'#5b6bff']];
         g.textAlign='left';
         rows.forEach(function(r,i){
-        var yy=1560+i*62;
+        var yy=1590+i*58;
           g.fillStyle=r[2]; g.fillRect(180,yy-26,26,26);
           g.font='400 34px Prompt, sans-serif'; g.fillText(r[0],225,yy);
           g.fillStyle='#fff'; g.font='600 40px Prompt, sans-serif'; g.fillText(r[1],560,yy);
