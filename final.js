@@ -103,7 +103,7 @@ var NO = '<svg viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r=
     return out;
   }
   /* ---------- QR: lleva a la página que arma la imagen del NPC ---------- */
-  var QR_BASE='http://192.168.123.35/index.html';
+  var QR_BASE='https://tomaspianelli.github.io/NPC-Lab/index.html'; 
   function qrUrl(){
     var P=D.pers||{}, p=['habla','caracter','creatividad','expresividad','social'].map(function(k){ return typeof P[k]==='number'?P[k]:4; });
     var q=new URLSearchParams({ n:D.name, h:D.hair||'', o:D.outfit||'', c:D.clase, v:(D.mov&&D.mov.value!==undefined?D.mov.value:.5), p:p.join(',') });
