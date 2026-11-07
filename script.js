@@ -170,6 +170,15 @@ document.fonts.load('700 1em "PP NeueBit"');   // la carga antes de que se midan
     i=n; clearInterval(timer);
     slides.forEach(function(s,k){ s.classList.toggle('on',k===n); });
     fitBubbles(slides[n]);
+   var byte=slides[n].querySelector('.sci3');                    // Byte camina al entrar y después vuelve a su GIF de siempre
+    if(byte){
+      if(!byte.dataset.idle) byte.dataset.idle=byte.getAttribute('src');
+      clearTimeout(byte._w);
+      if(n===1&&!reduce){
+        byte.src='img/byte-camina.gif?'+Date.now();               // el ? reinicia el GIF desde el primer paso
+        byte._w=setTimeout(function(){ byte.src=byte.dataset.idle; },2200);
+      } else byte.src=byte.dataset.idle;
+    }
     var rt=slides[n].querySelector('.rt');
 if(!rt){ typing=false; sr.textContent=slides[n].textContent.replace(/\s+/g,' ').trim(); return; }   // pantalla sin texto que se escribe solo (la del científico)
 var g=rt.querySelector('.g'), t=rt.querySelector('.t');
