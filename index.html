@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NPC Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script type="importmap">
+  { "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  } }
+</script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- Dispersión cromática: separa los canales rojo y azul -->
+  <filter id="ca" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
+    <feColorMatrix in="SourceGraphic" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="r"/>
+    <feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="g"/>
+    <feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0" result="b"/>
+    <feOffset in="r" dx="-2" result="ro"/>
+    <feOffset in="b" dx="2" result="bo"/>
+    <feBlend in="ro" in2="g" mode="screen" result="rg"/>
+    <feBlend in="rg" in2="bo" mode="screen"/>
+  </filter>
+</svg>
+
+<main class="screen" id="screen">
+  <div id="stage">
+    <section class="scene" id="intro">
+      <div class="logo" role="img" aria-label="NPC Lab">
+        <div class="px"><i></i><i></i><i></i></div><b>NPC</b><span>LAB</span>
+      </div>
+      <!-- El piso en perspectiva ahora lo dibuja Three.js -->
+      <div class="floor"><canvas id="floor"></canvas></div>
+      <div class="prompt" id="start" role="button" tabindex="0">Baja la <b>PALANCA</b> para empezar</div>
+    </section>
+
+    <!-- Tutorial: tres pantallas con el científico (el texto se escribe solo; Enter avanza) -->
+    <section class="scene" id="tutorial" hidden>
+      <!-- 1 · Bienvenida -->
+      <div class="slide">
+        <p class="welcome">Te damos la bienvenida a</p>
+        <div class="logo l3" role="img" aria-label="NPC Lab"><div class="px"><i></i><i></i><i></i></div><b>NPC</b><span>LAB</span></div>
+        <p class="rt" style="--x:136;--y:479;--w:1650;--lh:85" aria-hidden="true"><span class="g">Una experiencia en la que vas a <b class="ac">crear</b> y darle vida a tu propio <b class="ac">NPC</b></span><span class="t"></span></p>
+        <div class="b3" data-tail="r" data-fit style="--x:760;--y:626;--w:740;--h:170;--px:44;--pr:100;--fs:1.9"><svg viewBox="0 0 10 10" aria-hidden="true"><path d=""/></svg><p><span>¿Está listo, Doc?<br>Toque el botón central para avanzar</span></p></div>
+        <img class="sci3" style="--x:1535;--y:620;--h:385" src="img/cientifico.gif" alt="">
+        <div class="floor3" style="--x:1514;--y:1009;--w:306"></div>
+      </div>
+      <!-- 1b · El científico se presenta -->
+     <div class="slide">
+       <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M90 128H152L166 107H1772L1820 153"/></svg>
+       <div class="b3" data-tail="l" data-fit style="--x:610;--y:432;--w:772;--h:253;--px:52;--pr:60;--fs:2.2"><svg viewBox="0 0 10 10" aria-hidden="true"><path d=""/></svg><p><span>Antes que nada, déjeme presentarme.<br>Soy Byte y seré su asistente<br>en este recorrido</span></p></div>
+       <img class="sci3" style="--x:205;--y:620;--h:388" src="img/cientifico.gif" alt="">
+        <div class="floor3" style="--x:197;--y:1010;--w:306"></div>
+    <div class="mark" aria-hidden="true"><i></i><i></i><i></i></div>
+    </div>
+      <!-- 2 · Qué se puede hacer -->
+      <div class="slide">
+        <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M90 137H152L166 116H1776L1824 162"/></svg>
+        <p class="rt" style="--x:100;--y:283;--w:1720;--lh:75" aria-hidden="true"><span class="g">En este <b>LAB</b> vas a poder personalizarle el <b class="cg">cuerpo</b>, definir sus patrones de <b class="cm">movimiento</b> y hasta diseñar cómo funciona su <b class="cb">conciencia</b></span><span class="t"></span></p>
+        <div class="b3" data-tail="l" data-fit style="--x:1045;--y:463;--w:618;--h:170;--px:44;--pr:60;--fs:2.7"><svg viewBox="0 0 10 10" aria-hidden="true"><path d=""/></svg><p><span>Preste mucha atencion!<br>Toque el botón central para avanzar</span></p></div>
+        <img class="sci3" style="--x:770;--y:610;--h:395" src="img/cientifico.gif" alt="">
+        <div class="floor3" style="--x:763;--y:1011;--w:306"></div>
+        <div class="mark" aria-hidden="true"><i></i><i></i><i></i></div>
+      </div>
+      <!-- 3 · Qué es un NPC -->
+      <div class="slide">
+        <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M93 130H155L170 108H1780L1828 154"/></svg>
+        <p class="rt" style="--x:100;--y:297;--w:1720;--lh:75" aria-hidden="true"><span class="g">Los <b class="ac">NPC</b> son los personajes no jugables dentro de un videojuego. Viven por su cuenta en base a la <b class="ac">inteligencia</b> que tenga <b class="ac">programada</b></span><span class="t"></span></p>
+        <div class="b3" data-tail="r" style="--x:637;--y:614;--w:659;--h:194;--px:39;--fs:2"><svg viewBox="0 0 10 10" aria-hidden="true"><path d=""/></svg><p>¡Al final de este recorrido se va a llevar una recompensa!</p></div>
+        <img class="sci3" style="--x:1358;--y:602;--h:397" src="img/cientifico.gif" alt="">
+        <div class="floor3" style="--x:1405;--y:1002;--w:197"></div>
+        <div class="mark" aria-hidden="true"><i></i><i></i><i></i></div>
+      </div>
+      <p class="sr-only" id="trSr" aria-live="polite"></p>
+    </section>
+
+    <!-- Poner nombre al NPC: va después del tutorial y antes del menú de núcleos -->
+    <section class="scene" id="nombre" hidden>
+      <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M93 130H155L170 108H1780L1828 154"/></svg>
+      <div class="n-main" id="nMain">
+        <div class="n-frame"></div>
+        <div class="n-shadow"></div>
+        <canvas id="nNpc" role="img" aria-label="Tu NPC de frente"></canvas>
+        <i class="n-br tl" style="--x:213;--y:228"></i><i class="n-br tr" style="--x:677;--y:228"></i>
+        <i class="n-br bl" style="--x:213;--y:884"></i><i class="n-br rb" style="--x:677;--y:884"></i>
+      </div>
+      <i class="n-br k tl" style="--x:863;--y:229"></i><i class="n-br k tr" style="--x:1717;--y:229"></i>
+      <i class="n-br k bl" style="--x:863;--y:884"></i><i class="n-br k rb" style="--x:1717;--y:884"></i>
+      <div class="n-kb" id="nKb" role="group" aria-label="Teclado virtual">
+        <p class="n-kt" id="nField"><span class="n-ph" id="nPh">Escribí el nombre de tu NPC</span><span id="nText"></span><i class="n-cur"></i></p>
+        <div class="n-keys" id="nKeys"></div>
+      </div>
+      <div class="mark" aria-hidden="true"><i></i><i></i><i></i></div>
+      <p class="sr-only" id="nSr" aria-live="polite"></p>
+    </section>
+
+    <!-- Tutorial de los controles: va después de ponerle nombre al NPC y antes del menú de núcleos
+         (script.js: npclab:nameend ─▶ tutorial2.js ─ npclab:tut2end ─▶ menú de núcleos) -->
+         <section class="scene" id="tutorial2" hidden>
+          <!-- 1 · Los 5 botones (tuto_1) -->
+          <div class="slide">
+          <span class="mv-tri" style="--x:100;--y:62;--w:40;--h:44" aria-hidden="true"></span><h2 class="t2-title">Tutorial</h2>
+          <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M100 158H162L178 136H1772L1820 183"/></svg>
+          <p class="rt" style="--x:100;--y:226;--w:1720;--lh:75" aria-hidden="true"><span class="g"><b class="ac">Presioná las flechas</b> y comprobá si se iluminan en la pantalla. Estos botones son los que utilizarás para recorrer las pantallas.</span><span class="t"></span></p>
+          <svg class="t2g t2p" data-k="up" style="--x:572;--y:458;--w:153;--h:123;--gl:#ffffff" viewBox="572 458 153 123" aria-hidden="true"><rect x="634" y="458" width="30" height="31" fill="#fff"/><rect x="603" y="489" width="92" height="62" fill="#fff"/><rect x="572" y="551" width="153" height="30" fill="#fff"/></svg>
+          <svg class="t2g t2p" data-k="left" style="--x:432;--y:600;--w:123;--h:153;--gl:#fff600" viewBox="432 600 123 153" aria-hidden="true"><rect x="525" y="600" width="30" height="31" fill="#fff600"/><rect x="463" y="631" width="92" height="30" fill="#fff600"/><rect x="432" y="661" width="123" height="30" fill="#fff600"/><rect x="463" y="691" width="92" height="31" fill="#fff600"/><rect x="525" y="722" width="30" height="31" fill="#fff600"/></svg>
+          <svg class="t2g t2p" data-k="right" style="--x:745;--y:599;--w:123;--h:153;--gl:#2a3dff" viewBox="745 599 123 153" aria-hidden="true"><rect x="745" y="599" width="30" height="31" fill="#0003a9"/><rect x="745" y="630" width="92" height="31" fill="#0003a9"/><rect x="745" y="661" width="123" height="30" fill="#0003a9"/><rect x="745" y="691" width="92" height="31" fill="#0003a9"/><rect x="745" y="722" width="30" height="30" fill="#0003a9"/></svg>
+          <svg class="t2g t2p" data-k="down" style="--x:573;--y:771;--w:153;--h:123;--gl:#ff2a2a" viewBox="573 771 153 123" aria-hidden="true"><rect x="573" y="771" width="153" height="30" fill="#ff0004"/><rect x="604" y="801" width="92" height="62" fill="#ff0004"/><rect x="635" y="863" width="30" height="31" fill="#ff0004"/></svg>
+          <div class="b3 s50 tb" data-tail="r" data-fit style="--x:940;--y:508;--w:300;--h:167;--px:34;--pr:100;--fs:2"><svg viewBox="0 0 10 10" aria-hidden="true"><path d=""/></svg><p><span>Asegúrese que funcione<br>todo, Doc.</span></p></div>
+          <img class="sci3" style="--x:1510;--y:548;--h:397" src="img/cientifico.gif" alt="">
+          <div class="floor3" style="--x:1514;--y:946;--w:306"></div>
+          <div class="mark" aria-hidden="true"><i></i><i></i><i></i></div>
+          </div>
+
+          <!-- 1b · Cómo seleccionar (tuto_6_1): los botones son solo una animación -->
+<div class="slide">
+  <span class="mv-tri" style="--x:100;--y:62;--w:40;--h:44" aria-hidden="true"></span><h2 class="t2-title">Tutorial</h2>
+  <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M100 158H162L178 136H1772L1820 183"/></svg>
+  <p class="rt" style="--x:100;--y:226;--w:1720;--lh:75" aria-hidden="true"><span class="g"><b class="ac">El botón central se utiliza para seleccionar</b>. En varias ocasiones se te va a dar la opción de regresar atrás. Mové con las flechas tu selección y presioná el botón central.</span><span class="t"></span></p>
+  <div class="t2k kb" style="--x:293;--y:856;--w:410;--h:88" aria-hidden="true">Regresar</div>
+  <div class="t2k ks" style="--x:971;--y:854;--w:414;--h:92" aria-hidden="true">Siguiente</div>
+  <div class="b3 s50 tb" data-tail="r" data-fit style="--x:960;--y:575;--w:300;--h:167;--px:34;--pr:70;--fs:2"><svg viewBox="0 0 10 10" aria-hidden="true"><path d=""/></svg><p><span>Doc, recuerde esto para<br>su recorrido..</span></p></div>
+  <img class="sci3" style="--x:1510;--y:548;--h:397" src="img/cientifico.gif" alt="">
+  <div class="floor3" style="--x:1514;--y:946;--w:306"></div>
+  <div class="mark" aria-hidden="true"><i></i><i></i><i></i></div>
+  </div>
+          
+          <!-- 2 · La palanca (tuto_2) -->
+          <div class="slide" data-lever>
+          <span class="mv-tri" style="--x:100;--y:62;--w:40;--h:44" aria-hidden="true"></span><h2 class="t2-title">Tutorial</h2>
+          <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M100 158H162L178 136H1772L1820 183"/></svg>
+          <p class="rt" style="--x:100;--y:226;--w:1720;--lh:75" aria-hidden="true"><span class="g"><b class="ac">Bajá la palanca</b> para comprobar cuando se ilumine el indicador en la pantalla. Usala al finalizar cada nivel, cuando aparezca este ícono.</span><span class="t"></span></p>
+          <svg class="t2g t2l" style="--x:373;--y:497;--w:467;--h:378" viewBox="373 497 467 378" aria-hidden="true"><g class="ar"><rect x="529" y="497" width="103" height="26" style="--d:0.00s"/><rect x="633" y="523" width="51" height="26" style="--d:0.15s"/><rect x="685" y="549" width="25" height="26" style="--d:0.22s"/><rect x="529" y="549" width="78" height="26" style="--d:0.00s"/><rect x="607" y="575" width="51" height="26" style="--d:0.11s"/><rect x="711" y="575" width="25" height="26" style="--d:0.26s"/><rect x="659" y="601" width="25" height="26" style="--d:0.19s"/></g><g class="bs"><rect x="581" y="668" width="77" height="26"/><rect x="529" y="694" width="181" height="25"/><rect x="659" y="719" width="51" height="1"/><rect x="529" y="719" width="52" height="1"/><rect x="659" y="720" width="77" height="25"/><rect x="503" y="720" width="78" height="25"/><rect x="503" y="745" width="52" height="1"/><rect x="685" y="745" width="51" height="1"/><rect x="477" y="746" width="78" height="25"/><rect x="685" y="746" width="77" height="25"/><rect x="711" y="771" width="51" height="26"/><rect x="477" y="771" width="52" height="26"/><rect x="737" y="797" width="25" height="1"/><rect x="477" y="797" width="26" height="1"/><rect x="613" y="798" width="25" height="26"/><rect x="451" y="798" width="52" height="52"/><rect x="737" y="798" width="51" height="52"/><rect x="587" y="824" width="77" height="26"/><rect x="399" y="850" width="441" height="25"/></g><g class="lv"><rect x="373" y="590" width="52" height="26"/><rect x="373" y="616" width="78" height="25"/><rect x="399" y="641" width="52" height="26"/><rect x="451" y="668" width="26" height="25"/><rect x="477" y="694" width="26" height="25"/></g></svg>
+          <div class="b3 s50 tb nodot" data-tail="r" data-fit style="--x:940;--y:508;--w:300;--h:167;--px:34;--pr:36;--fs:2"><svg viewBox="0 0 10 10" aria-hidden="true"><path d=""/></svg><p><span>Una vez que baje la<br>palanca no hay vuelta atrás.</span></p></div>
+          <img class="sci3" style="--x:1510;--y:548;--h:397" src="img/cientifico.gif" alt="">
+          <div class="floor3" style="--x:1514;--y:946;--w:306"></div>
+          <div class="mark" aria-hidden="true"><i></i><i></i><i></i></div>
+          </div>
+
+                <!-- 2b · La barra de progreso -->
+      <div class="slide">
+        <span class="mv-tri" style="--x:100;--y:62;--w:40;--h:44" aria-hidden="true"></span><h2 class="t2-title">Tutorial</h2>
+        <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M100 158H162L178 136H1772L1820 183"/></svg>
+        <p class="rt" style="--x:100;--y:226;--w:1720;--lh:75" aria-hidden="true"><span class="g"><b class="ac">Chequeá tu avance en tiempo real</b>. La barra indica qué núcleo completaste y se llena a medida que superás cada etapa.</span><span class="t"></span></p>
+        <div class="t2bub" style="--x:643;--y:447">
+          <svg viewBox="0 0 634 284" aria-hidden="true"><path d="M0 20L32 0H370L394 19H584L634 76V258L611 284H32L0 258Z"/></svg>
+          <p>Completá cada aspecto para desbloquear el siguiente.</p>
+          <i class="t2dot"></i>
+        </div>
+        <div class="t2bar" aria-hidden="true"><i style="--c:#1bff00"></i><i style="--c:#e50efa"></i><i style="--c:#0027ff"></i></div>
+        <div class="mark" aria-hidden="true"><i></i><i></i><i></i></div>
+        </div>
+
+              <!-- 2c · Advertencia: botón rojo (tuto_9) -->
+      <div class="slide">
+        <div class="t9bg">
+          <span class="mv-tri" style="--x:100;--y:46;--w:40;--h:44;background:#fcd116" aria-hidden="true"></span><h2 class="t2-title t9t">Advertencia de seguridad</h2>
+          <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M100 131H162L178 109H1772L1820 155"/></svg>
+          <p class="rt" style="--x:100;--y:208;--w:1720;--lh:75" aria-hidden="true"><span class="g">Este botón podría ser potencialmente destructivo. No lo toques!</span><span class="t"></span></p>
+          <div class="t9btn"><i></i></div><p class="t9no">NO TOCAR</p>
+        </div>
+        <img class="sci3" style="--x:1302;--y:490;--h:435" src="img/cientifico.gif" alt="">
+        <img class="t9hand" style="--x:1200;--y:515;--w:350" src="img/mano-stop.png" alt="" onerror="this.style.visibility='hidden'">
+        <div class="b3 s50 tp t9b" data-tail="r" data-fit style="--x:800;--y:393;--w:446;--h:152;--px:30;--pr:50;--fs:2"><svg viewBox="0 0 10 10" aria-hidden="true"><path d=""/></svg><p><span>Por lo que más quieras...<br><b class="or">¡NO LO TOQUES!</b></span></p></div>
+        <div class="t9tape" aria-hidden="true"></div>
+        </div>
+  
+        <!-- 2d · Probá el botón (tuto_9_1): solo avanza con el botón rojo -->
+        <div class="slide" data-red>
+        <div class="t9bg">
+          <span class="mv-tri" style="--x:100;--y:46;--w:40;--h:44;background:#fcd116" aria-hidden="true"></span><h2 class="t2-title t9t">Advertencia de seguridad</h2>
+          <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M100 131H162L178 109H1772L1820 155"/></svg>
+          <p class="rt" style="--x:100;--y:208;--w:1720;--lh:75" aria-hidden="true"><span class="g">Solo debe tocarse una vez hayas completado todos los niveles.</span><span class="t"></span></p>
+          <div class="t9btn"><i></i></div><p class="t9no">NO TOCAR</p>
+        </div>
+        <img class="sci3" style="--x:1302;--y:490;--h:435" src="img/cientifico.gif" alt="">
+        <div class="b3 s50 tp t9b nodot" data-tail="r" data-fit style="--x:690;--y:393;--w:546;--h:185;--px:27;--pr:84;--fs:2"><svg viewBox="0 0 10 10" aria-hidden="true"><path d=""/></svg><p><span>Dale, sé que quiere tocarlo.<br>TÓQUELO pero solo UNA VEZ.</span></p></div>
+        </div>
+  
+        <!-- 2e · Después de apretarlo (tuto_9_2) -->
+        <div class="slide dim">
+        <div class="t9bg">
+          <span class="mv-tri" style="--x:100;--y:46;--w:40;--h:44;background:#fcd116" aria-hidden="true"></span><h2 class="t2-title t9t">Advertencia de seguridad</h2>
+          <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M100 131H162L178 109H1772L1820 155"/></svg>
+          <p class="rt" style="--x:100;--y:208;--w:1720;--lh:75" aria-hidden="true"><span class="g">Solo debe tocarse una vez hayas completado todos los niveles.</span><span class="t"></span></p>
+          <div class="t9btn"><i></i></div><p class="t9no">NO TOCAR</p>
+        </div>
+        <img class="sci3" style="--x:1302;--y:490;--h:435" src="img/cientifico.gif" alt="">
+        <div class="b3 s50 tp t9b" data-tail="r" data-fit style="--x:690;--y:393;--w:546;--h:230;--px:30;--pr:48;--fs:2"><svg viewBox="0 0 10 10" aria-hidden="true"><path d=""/></svg><p><span>Si lo vuelve tocar, <b class="or">perderá todo</b><br><b class="or">su progreso</b> y tendrá que<br>empezar desde cero.</span></p></div>
+        </div>
+
+        <!-- ¿Estás seguro?: aparece al volver a tocar el botón rojo (reset.js) -->
+<section class="scene" id="seguro" hidden>
+  <img class="rs-bg" src="img/fondo-seguro.png" alt="" onerror="this.style.visibility='hidden'">
+  <h2 class="rs-t">¿ESTÁS SEGURO?</h2>
+  <div class="rs-bub">
+    <svg viewBox="0 0 768 106" aria-hidden="true"><path d="M20.5 3.5H747.5Q764.5 3.5 764.5 20.5V85.5Q764.5 102.5 747.5 102.5H400L384 122L368 102.5H20.5Q3.5 102.5 3.5 85.5V20.5Q3.5 3.5 20.5 3.5Z"/></svg>
+    <p>Todo avance será eliminado!</p>
+  </div>
+  <button class="rs-back" id="rsBack" type="button">Regresar</button>
+  <svg class="t2g rs-red" id="rsRed" style="--x:1632;--y:898;--w:224;--h:124" viewBox="1632 898 224 124" aria-hidden="true"><rect x="1681" y="898" width="125" height="20" fill="#c41c1c"/><rect x="1656" y="918" width="175" height="80" fill="#c41c1c"/><rect x="1632" y="948" width="24" height="50" fill="#6b6b6b"/><rect x="1831" y="948" width="25" height="50" fill="#6b6b6b"/><rect x="1656" y="998" width="175" height="24" fill="#6b6b6b"/></svg>
+  <p class="sr-only" id="rsSr" aria-live="assertive"></p>
+  <video class="rs-vid" id="rsVid" src="video/reinicio.mp4" preload="auto" playsinline hidden></video>
+</section>
+          <p class="sr-only" id="t2Sr" aria-live="polite"></p>
+        </section>
+
+    <!-- Elegir núcleo: aparece al terminar el tutorial de controles -->
+    <section class="scene first" id="cores" hidden>
+      <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M90 141H152L165 120H1777L1825 165"/></svg>
+
+      <div class="bubble2">
+        <svg viewBox="0 0 548 160" aria-hidden="true"><path d="M20.5 3.5H513.5Q530.5 3.5 530.5 20.5V118Q536 135 540 150Q541 156 534 153L502 144.5H20.5Q3.5 144.5 3.5 127.5V20.5Q3.5 3.5 20.5 3.5Z"/></svg>
+        <p class="msg2" id="coresMsg" aria-hidden="true"></p>
+        <p class="sr-only" id="coresSr"></p>
+      </div>
+
+            <!-- Mensaje de los cables: solo la primera vez -->
+            <div class="cbub" aria-hidden="true">
+              <svg viewBox="0 0 1211 240"><path d="M20.5 3.5H1190.5Q1207.5 3.5 1207.5 20.5V207L1252 246Q1265 257 1250 261L1133 236.5H20.5Q3.5 236.5 3.5 219.5V20.5Q3.5 3.5 20.5 3.5Z"/></svg>
+              <p class="cb-t" id="coresCableT"><span class="g"></span><span class="t"></span></p>
+              <div class="cb-sq">
+                <img src="img/puerto.png" alt="" onerror="this.parentNode.classList.add('nopng')">
+                <svg viewBox="0 0 175 162">
+                  <defs><linearGradient id="cbg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0a0a0d"/><stop offset=".55" stop-color="#1b1b20"/><stop offset="1" stop-color="#55555d"/></linearGradient></defs>
+                  <rect class="cb-led" x="49" y="73" width="8" height="14" rx="3" fill="#3dff2a"/>
+                  <g class="cb-cable"><rect x="78" y="100" width="20" height="120" fill="url(#cbg)"/><rect x="66" y="58" width="44" height="46" fill="#1b1b20" stroke="#55555d" stroke-width="3"/></g>
+                </svg>
+              </div>
+            </div>
+
+      <span class="hdr-play" aria-hidden="true"></span>
+      <h2 class="hdr-title">Selección de aspecto</h2>
+      <div class="k-prog g" role="img" aria-label="Progreso: 0 de 3" aria-hidden="false"><i></i></div>
+      <div class="c-prog" id="coresProg" role="img" aria-label="Progreso: 0 de 3 núcleos"><i></i><i></i><i></i></div>
+      
+      <!-- El científico asoma detrás del panel -->
+      <img class="head" src="img/cientifico.gif" alt="">
+
+      <div class="panel">
+        <button class="core" data-core="personalidad" style="--c:#1bff00">
+          <span class="tile"><img src="img/icono-personalidad.png" alt=""></span>
+          <span class="lbl">Personalidad</span>
+        </button>
+        <button class="core" data-core="movimiento" style="--c:#e50efa">
+          <span class="tile"><img src="img/icono-movimiento.png" alt=""></span>
+          <span class="lbl">Movimiento</span>
+        </button>
+        <button class="core" data-core="conciencia" style="--c:#0027ff">
+          <span class="tile"><img src="img/icono-conciencia.png" alt=""></span>
+          <span class="lbl">Conciencia</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Núcleo 1 · Personalidad -->
+    <section class="scene" id="personalidad" hidden>
+      <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M93 132H155L170 111H1780L1828 157"/></svg>
+      <span class="hdr-play" aria-hidden="true"></span>
+      <h2 class="hdr-title">Modificá tu apariencia</h2>
+      <div class="k-prog g" role="img" aria-label="Progreso: 0 de 3" aria-hidden="false"><i></i></div>
+
+      <canvas id="npc3d" role="img" aria-label="Tu NPC en 3D"></canvas>
+
+      <span class="tri t1" aria-hidden="true"></span><h3 class="lab l1">Selecciona un peinado</h3>
+      <button class="arrow prev" id="hairPrev" aria-label="Peinado anterior"><svg viewBox="0 0 5 7" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0H2V1H3V2H4V3H5V4H4V5H3V6H2V7H0V5H1V4H2V3H1V2H0Z"/></svg></button>
+      <div class="sel" role="listbox" aria-label="Peinados">
+        <button class="hair" data-id="largo" aria-label="Pelo largo ondulado"><img src="img/pelo-3.png" alt=""></button>
+        <button class="hair on" data-id="capucha" aria-label="Pelo con capucha"><img src="img/pelo-1.png" alt=""></button>
+        <button class="hair" data-id="corto" aria-label="Pelo corto desordenado"><img src="img/pelo-2.png" alt=""></button>
+      </div>
+      <button class="arrow next" id="hairNext" aria-label="Peinado siguiente"><svg viewBox="0 0 5 7" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0H2V1H3V2H4V3H5V4H4V5H3V6H2V7H0V5H1V4H2V3H1V2H0Z"/></svg></button>
+
+      <span class="tri t2" aria-hidden="true"></span><h3 class="lab l2">¿Sabías que...?</h3>
+      <div class="info" aria-live="polite">
+        <!-- Un dato por peinado: data-opt dice con cuál aparece (largo, capucha o corto). Las coordenadas son las del diseño (1920×1080) -->
+        <div class="fact" data-opt="corto">
+          <svg class="fx" style="--x:900;--y:692;--w:320" viewBox="0 0 320 320" aria-hidden="true">
+            <path d="M160 160L314 160A154 154 0 1 1 206.6 12.7Z" fill="#2ecc1a"/>
+            <path d="M160 160L206.6 12.7A154 154 0 0 1 314 160Z" transform="translate(8 -8)" fill="#101a13"/>
+          </svg>
+          <p class="fx big" style="--x:1265;--y:737">El <span class="gg">80%</span></p>
+          <p class="fx sub" style="--x:1263;--y:852;--w:560;--fs:40;--lh:60">de los <b class="hg">NPC secundarios</b><br>usan <b class="hg">cabello corto</b></p>
+        </div>
+        <div class="fact" data-opt="capucha">
+          <div class="dots" data-pct="63" aria-hidden="true"></div>
+          <p class="fx big" style="--x:1265;--y:700">Un <span class="gg">63%</span></p>
+          <p class="fx sub" style="--x:1263;--y:802;--w:545;--fs:34;--lh:48"><b class="hg">de desarrolladores utilizan</b> herramientas de <b class="hg">IA</b> específicamente para la creación de <b class="hg">activos 3D y modelos de personajes</b></p>
+        </div>
+        <div class="fact" data-opt="largo">
+          <p class="fx sub" style="--x:895;--y:708;--w:560;--fs:38;--lh:54"><span class="l1">Distintos <b class="hg">estilo de pelo</b> modifican</span><span class="rest">la <b class="hg">silueta de la cabeza</b>, aunque el rostro y cuerpo sean iguales.</span></p>
+          <img class="fx" style="--x:1270;--y:785;--w:530" src="img/dato-siluetas.png" alt="Tres peinados distintos sobre la misma cabeza: cambia la silueta, el rostro no">
+        </div>
+      </div>
+    </section>
+
+    <!-- Núcleo 1 · Personalidad · paso 2: atuendo (el NPC se ve de cuerpo entero) -->
+    <section class="scene" id="atuendo" hidden>
+      <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M93 132H155L170 111H1780L1828 157"/></svg>
+      <span class="hdr-play" aria-hidden="true"></span>
+      <h2 class="hdr-title">Modificá tu apariencia</h2>
+      <div class="k-prog g" role="img" aria-label="Progreso: 0 de 3" aria-hidden="false"><i></i></div>
+
+      <div class="o-shadow"></div>
+
+      <span class="tri t1" aria-hidden="true"></span><h3 class="lab l1">Selecciona un atuendo</h3>
+      <button class="arrow prev" id="outPrev" aria-label="Atuendo anterior"><svg viewBox="0 0 5 7" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0H2V1H3V2H4V3H5V4H4V5H3V6H2V7H0V5H1V4H2V3H1V2H0Z"/></svg></button>
+      <div class="sel" role="listbox" aria-label="Atuendos">
+        <button class="hair" data-id="ropa-1" aria-label="Remera azul, bermuda y botas"><img src="img/ropa-1.png" alt=""></button>
+        <button class="hair on" data-id="ropa-2" aria-label="Campera, pantalón gris"><img src="img/ropa-2.png" alt=""></button>
+        <button class="hair" data-id="ropa-3" aria-label="Buzo blanco, pantalón verde y zapatillas"><img src="img/ropa-3.png" alt=""></button>
+      </div>
+      <button class="arrow next" id="outNext" aria-label="Atuendo siguiente"><svg viewBox="0 0 5 7" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0H2V1H3V2H4V3H5V4H4V5H3V6H2V7H0V5H1V4H2V3H1V2H0Z"/></svg></button>
+
+      <span class="tri t2" aria-hidden="true"></span><h3 class="lab l2">¿Sabías que...?</h3>
+      <div class="info" aria-live="polite">
+        <!-- Un dato por atuendo: data-opt dice con cuál aparece (ropa-1, ropa-2 o ropa-3) -->
+        <div class="fact" data-opt="ropa-2">
+          <svg class="clock" viewBox="0 0 260 270" aria-hidden="true">
+            <rect x="106" y="0" width="51" height="16" fill="#08d400"/>
+            <circle cx="130" cy="141" r="107" fill="none" stroke="#14301f" stroke-width="30"/>
+            <circle cx="130" cy="141" r="107" fill="none" stroke="#08d400" stroke-width="30" stroke-dasharray="470.6 672.3" transform="rotate(-90 130 141)"/>
+            <path d="M130 67V83M130 199V215M56 141H72M188 141H204" stroke="#08d400" stroke-width="4"/>
+            <path d="M103 125L129 149L178 97" fill="none" stroke="#08d400" stroke-width="8"/>
+          </svg>
+          <p class="fx big" style="--x:1188;--y:688">Un <span class="gg">70%</span></p>
+          <p class="fx sub j" style="--x:1188;--y:806;--w:572;--fs:34;--lh:48;--ind:26"><b class="hg">de tiempo es ahorrado</b> utilizando herramientas automáticas como <b class="hg">Audio2Face</b> para sincronizar el rostro, <b class="hg">la boca y el cabello</b> con la voz.</p>
+        </div>
+        <div class="fact" data-opt="ropa-1">
+          <p class="fx sub" style="--x:910;--y:692;--w:390;--fs:42;--lh:60"><b class="hg">La ropa por capas</b> se adapta a la <b class="hg">forma del cuerpo</b> y puede acompañar sus movimientos.</p>
+          <img class="fx" style="--x:1347;--y:740;--w:203" src="img/dato-ropa-2d.png" alt="Prenda en 2D, una textura plana" onerror="this.style.visibility='hidden'">
+          <img class="fx" style="--x:1605;--y:728;--w:168" src="img/dato-ropa-3d.png" alt="La misma prenda en 3D, con malla" onerror="this.style.visibility='hidden'">
+          <p class="fx big" style="--x:1398;--y:922;--fs:75"><span class="gg">2D</span></p>
+          <p class="fx big" style="--x:1645;--y:919;--fs:75"><span class="gg">3D</span></p>
+        </div>
+        <div class="fact" data-opt="ropa-3">
+          <img class="fx" style="--x:925;--y:727;--w:270" src="img/dato-mundo-abierto.png" alt="Dos NPC con distintas combinaciones de ropa" onerror="this.style.visibility='hidden'">
+          <p class="fx sub j" style="--x:1240;--y:729;--w:523;--fs:38;--lh:54">En videojuegos de mundo abierto, se combinan <b class="hg">cientos de prendas</b> para que <b class="hg">nunca haya dos NPCs vestidos igual</b>.</p>
+        </div>
+      </div>
+      <button class="bk" type="button" aria-label="Regresar" style="--bx:215;--by:992"><span class="bk-i"><svg viewBox="0 0 36 24" aria-hidden="true"><path d="M34 12H4M14 2L3 12L14 22" fill="none" stroke-width="3.5"/></svg><b>Regresar</b></span></button>   
+    </section>
+
+    <!-- Núcleo 1 · paso 3: personalidad (sale después de elegir el atuendo) -->
+    <section class="scene" id="rasgos" hidden>
+      <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true">
+        <path d="M93 132H155L170 111H1780L1828 157"/>
+        <path class="gr" d="M100 221L115 204H496L515 221V995L497 1021H115L100 995Z"/>
+        <path class="gr" d="M557 250L587 205H1761L1798 249V713L1763 744H586L557 712Z"/>
+        <path class="gr" d="M578 190H535V234"/>
+        <path class="gr" d="M1776 762H1820V717"/>
+      </svg>
+      <span class="hdr-play" aria-hidden="true"></span>
+      <h2 class="hdr-title">Modificá tu personalidad</h2>
+      <div class="k-prog g" role="img" aria-label="Progreso: 0 de 3" aria-hidden="false"><i></i></div>
+
+      <h3 class="r-t" id="rTitle">Predominio de la cortesía</h3>
+      <svg class="r-pie" id="rPie" viewBox="0 0 314 314" role="img" aria-label="Gráfico del rasgo seleccionado"></svg>
+      <ul class="r-leg" id="rLeg"></ul>
+
+      <button class="r-next" id="rNext" type="button">Siguiente</button>
+      <p class="sr-only" id="rSr" aria-live="polite"></p>
+      <button class="bk" type="button" aria-label="Regresar" style="--bx:653;--by:853;--bw:400"><span class="bk-i"><svg viewBox="0 0 36 24" aria-hidden="true"><path d="M34 12H4M14 2L3 12L14 22" fill="none" stroke-width="3.5"/></svg><b>Regresar</b></span></button> 
+    </section>
+
+    <!-- Núcleo 1 · pantalla final: Resultados (NPC + mapa araña + resumen + cómo te expresás) -->
+    <section class="scene" id="pfinal" hidden>
+      <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true">
+        <path d="M68 125H88L92 103H565L577 85"/>
+        <path class="gr bk" d="M100 177L123 155H605L624 175V992L605 1014H113L100 992Z"/>
+        <path class="gr bk" d="M752 152L788 118H1336L1360 71H1773L1825 175V591L1774 634H787L752 591Z"/>
+        <path class="gr bk" d="M752 682L786 658H1184L1210 682H1435L1491 751V985L1467 1013H786L752 985Z"/>
+      </svg>
+      <span class="hdr-play" aria-hidden="true"></span>
+      <h2 class="hdr-title">Resultados</h2>
+      <!-- Izquierda: tu NPC (el canvas 3D se mueve acá desde el atuendo) -->
+      <div class="f-shadow"></div>
+      <p class="f-name">Nombre</p>
+
+      <!-- Tu personalidad: mapa araña + resumen -->
+      <span class="tri fa" aria-hidden="true"></span><h3 class="f-h fa">Tu personalidad</h3>
+      <svg class="f-radar" id="fRadar" viewBox="700 100 700 520" role="img" aria-label="Mapa de tu personalidad"></svg>
+      <h3 class="f-head" id="fHead"></h3>
+      <p class="f-sum" id="fSum"></p>
+
+      <!-- Cómo te expresás: torta -->
+      <span class="tri fb" aria-hidden="true"></span><h3 class="f-h fb">Cómo te expresas</h3>
+      <svg class="f-pie" id="fPie" viewBox="0 0 314 314" role="img" aria-label="Cómo te expresas"></svg>
+      <ul class="f-leg" id="fLeg"></ul>
+
+      <div class="f-btn" aria-hidden="true">Siguiente <svg viewBox="0 0 36 24" aria-hidden="true"><path d="M2 12H32M21 2L32 12L21 22" fill="none" stroke="#000" stroke-width="3.5"/></svg></div>
+      <p class="sr-only" id="fSr" aria-live="polite"></p>
+    </section>
+
+    <!-- Núcleo 2 · Movimiento: ciclo → FPS → tu movimiento → patrones tradicionales → patrones con IA → resultados -->
+    <section class="scene" id="movimiento" hidden data-s="0">
+      <div class="mv-slide" data-n="0"><svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M93 150H155L170 128H1780L1828 174"/></svg><span class="mv-tri" style="--x:107;--y:53;--w:41;--h:44" aria-hidden="true"></span><h2 class="mv mv-title" style="--x:172;--y:40">¿Qué es un ciclo?</h2><p class="mv mv-p" style="--x:93;--y:257;--w:1500;--fs:58;--lh:62">Es una <b class="mc">secuencia de movimientos</b> que se repite una y otra vez.</p><svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true" style="overflow:visible"><path d="M424 632H317V861H1601V632H1495" style="stroke:#e50efa;stroke-width:6"/><path d="M402 612L424 632L402 652M806 633H713M786 618L806 633L786 648M1160 633H1070M1140 618L1160 633L1140 648" style="stroke:#e50efa;stroke-width:4;stroke-linecap:square"/><path d="M713 633H806M1070 633H1160" style="stroke:#e50efa;stroke-width:4"/><path d="M1479 616L1495 632L1479 648L1463 632Z" style="fill:#e50efa;stroke:none"/></svg><div class="mv-btn" aria-hidden="true">Siguiente</div></div>
+      <div class="mv-slide" data-n="1"><svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M93 150H155L170 128H1780L1828 174"/></svg><span class="mv-tri" style="--x:107;--y:53;--w:41;--h:44" aria-hidden="true"></span><h2 class="mv mv-title" style="--x:160;--y:40">¿Qué son los FPS?</h2><p class="mv mv-p" style="--x:100;--y:243;--w:800;--fs:52;--lh:50">Son las <b class="mc">imágenes que se muestran por segundo</b> para crear la ilusión de movimiento.</p><div class="mv-box" style="--x:974"><span class="mv-num" style="--cx:152;--y:24;--fs:127" data-fix>30</span><span class="mv-lab" style="--cx:144;--y:216;--fs:66">FPS</span></div><div class="mv-box" style="--x:1408"><span class="mv-num" style="--cx:152;--y:24;--fs:127" data-fix>60</span><span class="mv-lab" style="--cx:144;--y:216;--fs:66">FPS</span></div><div class="mv-bub" id="mvBub"><svg viewBox="0 0 640 250" aria-hidden="true"><path d=""/></svg><p>Ahora con todo esto...<br>¡Empezá a definir el movimiento de tu NPC!</p><div class="mv-chev blink" style="--x:590;--y:177;--w:32;--h:43"><svg viewBox="0 0 5 7" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0H2V1H3V2H4V3H5V4H4V5H3V6H2V7H0V5H1V4H2V3H1V2H0Z"/></svg></div></div><img class="sci3" style="--x:105;--y:752;--h:258" src="img/cientifico.gif" alt=""><div class="floor3 mv-sfloor" style="--x:100;--y:1024;--w:197"></div><div class="mv-btn" aria-hidden="true">Siguiente</div></div>
+      <div class="mv-slide" data-n="2"><svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M80 145H143L158 123H1766L1815 169"/></svg><span class="mv-tri" style="--x:90;--y:69;--w:40;--h:44" aria-hidden="true"></span><h2 class="mv mv-title" style="--x:163;--y:47">Elige tu movimiento</h2><div class="mv-frame"></div>
+<div class="mv-st" style="--x:536"><span class="mv-num" data-k="cycle" style="--cx:152;--y:20;--fs:54">1</span><span class="mv-lab" style="--cx:152;--y:132;--fs:44">Segundo</span><p>Duración de un ciclo completo de movimiento</p></div>
+<div class="mv-st" style="--x:862"><span class="mv-num" data-k="fps" style="--cx:152;--y:20;--fs:54">24</span><span class="mv-lab" style="--cx:152;--y:132;--fs:44">FPS</span><p>Qué tan fluido se ve el movimiento</p></div>
+<div class="mv-st" style="--x:1188"><span class="mv-num" data-k="cpm" style="--cx:152;--y:20;--fs:54">60</span><span class="mv-lab" style="--cx:152;--y:132;--fs:44">Por minuto</span><p>Cuántos ciclos se repiten en un minuto</p></div>
+<div class="mv-st" style="--x:1514"><span class="mv-num" data-k="spm" style="--cx:152;--y:20;--fs:54">120</span><span class="mv-lab" style="--cx:152;--y:132;--fs:44">Pasos</span><p>Cantidad de pasos que hace el personaje en un minuto</p></div>
+<p class="mv mv-info" id="mvInfo" style="--x:537;--y:637;--w:1290"></p>
+<span class="mv mv-slab" id="mvLabE" style="--x:640;--y:799">Enérgico</span><span class="mv mv-slab r" id="mvLabL" style="--x:1712;--y:799">Lento</span>
+<div class="mv-chev p" id="mvPrev" style="--x:537;--y:873;--w:69;--h:96"><svg viewBox="0 0 5 7" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0H2V1H3V2H4V3H5V4H4V5H3V6H2V7H0V5H1V4H2V3H1V2H0Z"/></svg></div>
+<div class="mv-track" id="mvTrack" role="slider" aria-label="Velocidad del movimiento, de enérgico a lento" aria-valuemin="0" aria-valuemax="10" aria-valuenow="5"><div class="mv-knob"></div></div>
+<div class="mv-chev" id="mvNext" style="--x:1750;--y:873;--w:69;--h:96"><svg viewBox="0 0 5 7" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0H2V1H3V2H4V3H5V4H4V5H3V6H2V7H0V5H1V4H2V3H1V2H0Z"/></svg></div></div>
+      <div class="mv-slide" data-n="3"><svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M93 143H155L170 121H1780L1828 167"/></svg><span class="mv-tri" style="--x:107;--y:53;--w:41;--h:44" aria-hidden="true"></span><h2 class="mv mv-title" style="--x:158;--y:40">Patrones de movimiento</h2><p class="mv mv-p" style="--x:100;--y:243;--w:800;--fs:52;--lh:50">Son las <b class="mc">imágenes que se muestran por segundo</b> para crear la ilusión de movimiento.</p><p class="mv mv-pt" style="--x:100;--y:697">Punto A</p><svg class="mv" style="--x:338;--y:696;--w:306;--h:57" viewBox="0 0 306 57" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="19" width="226" height="19" fill="#e50efa"/><path d="M226 0H250V10H272V19H306V38H272V47H250V57H226Z" fill="#e50efa"/></svg><p class="mv mv-pt" style="--x:666;--y:697">Punto B</p><div class="mv-frame2" style="--y:200"></div><div class="mv-grid" style="--x:1013;--y:232"></div><div class="mv-shadow2" style="--y:783"></div><canvas class="mv-rain" style="--y:215" aria-hidden="true"></canvas><svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true" style="overflow:visible"><g fill="#d9d9d9"><rect x="1376" y="372" width="17" height="11"/><rect x="1390" y="363" width="17" height="11"/><rect x="1404" y="354" width="17" height="11"/><rect x="1418" y="345" width="17" height="11"/><rect x="1432" y="336" width="17" height="11"/><rect x="1446" y="336" width="17" height="11"/><rect x="1460" y="327" width="17" height="11"/><rect x="1474" y="327" width="17" height="11"/><rect x="1488" y="318" width="17" height="11"/><rect x="1502" y="318" width="17" height="11"/><rect x="1516" y="318" width="17" height="11"/><rect x="1530" y="318" width="17" height="11"/><rect x="1544" y="318" width="17" height="11"/><rect x="1558" y="318" width="17" height="11"/><rect x="1572" y="318" width="17" height="11"/><rect x="1586" y="327" width="17" height="11"/><rect x="1600" y="327" width="17" height="11"/><rect x="1614" y="336" width="17" height="11"/><rect x="1628" y="336" width="17" height="11"/><rect x="1642" y="345" width="17" height="11"/><rect x="1656" y="354" width="17" height="11"/><rect x="1670" y="363" width="17" height="11"/><rect x="1684" y="372" width="17" height="11"/></g></svg><div class="mv-line" style="--y:878"></div><div class="mv-btn" aria-hidden="true">Siguiente</div><button class="bk" type="button" aria-label="Regresar"><span class="bk-i"><svg viewBox="0 0 36 24" aria-hidden="true"><path d="M34 12H4M14 2L3 12L14 22" fill="none" stroke-width="3.5"/></svg><b>Regresar</b></span></button></div>
+      <div class="mv-slide" data-n="4"><svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M93 150H155L170 128H1780L1828 174"/></svg><span class="mv-tri" style="--x:107;--y:53;--w:41;--h:44" aria-hidden="true"></span><h2 class="mv mv-title" style="--x:158;--y:40">Patrones de movimiento</h2><p class="mv mv-p" style="--x:100;--y:298;--w:770;--fs:52;--lh:55">Pero los <b class="mc">NPCs con IA generativa</b> <b>interpretan el entorno del juego, adaptan sus decisiones y movimientos</b> según el mapa</p><svg class="mv" style="--x:158;--y:620;--w:123;--h:123" viewBox="0 0 100 100" aria-hidden="true"><path fill="none" stroke="#fff" stroke-width="4.5" d="M50 10C38 2 20 8 20 24C8 26 6 42 14 50C6 58 10 76 24 78C26 90 42 94 50 88M50 10C62 2 80 8 80 24C92 26 94 42 86 50C94 58 90 76 76 78C74 90 58 94 50 88M50 10V88M50 34H36M50 52H30M50 70H38M62 28h12M62 46h18M62 64h10"/></svg><p class="mv mv-ic" style="--x:218;--y:754">IA</p><svg class="mv" style="--x:314;--y:683;--w:306;--h:57" viewBox="0 0 306 57" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="19" width="226" height="19" fill="#e50efa"/><path d="M226 0H250V10H272V19H306V38H272V47H250V57H226Z" fill="#e50efa"/></svg><svg class="mv" style="--x:683;--y:637;--w:125;--h:60" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path fill="none" stroke="#fff" stroke-width="13" stroke-linejoin="round" d="M50 50C42 26 6 26 6 50C6 74 42 74 50 50C58 26 94 26 94 50C94 74 58 74 50 50Z"/></svg><p class="mv mv-ic" style="--x:745;--y:710">Puntos<br>Infinitos</p><div class="mv-frame2" style="--y:204"></div><div class="mv-grid" style="--x:1013;--y:236"></div><div class="mv-shadow2" style="--y:787"></div><canvas class="mv-rain" style="--y:219" aria-hidden="true"></canvas><svg class="mv" style="--x:1507;--y:312;--w:120;--h:124" viewBox="0 0 120 124" aria-hidden="true"><path d="M60 0L120 54H102V124H18V54H0Z" fill="#fff"/><rect x="30" y="66" width="60" height="46" fill="#000"/><rect x="38" y="74" width="14" height="14" fill="#fff"/><rect x="68" y="74" width="14" height="14" fill="#fff"/><rect x="52" y="94" width="16" height="30" fill="#fff"/></svg><svg class="mv" style="--x:1507;--y:493;--w:120;--h:124" viewBox="0 0 120 124" aria-hidden="true"><path d="M60 0L120 54H102V124H18V54H0Z" fill="#fff"/><rect x="30" y="66" width="60" height="46" fill="#000"/><rect x="38" y="74" width="14" height="14" fill="#fff"/><rect x="68" y="74" width="14" height="14" fill="#fff"/><rect x="52" y="94" width="16" height="30" fill="#fff"/></svg><svg class="mv" style="--x:1507;--y:673;--w:120;--h:124" viewBox="0 0 120 124" aria-hidden="true"><path d="M60 0L120 54H102V124H18V54H0Z" fill="#fff"/><rect x="30" y="66" width="60" height="46" fill="#000"/><rect x="38" y="74" width="14" height="14" fill="#fff"/><rect x="68" y="74" width="14" height="14" fill="#fff"/><rect x="52" y="94" width="16" height="30" fill="#fff"/></svg><svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true" style="overflow:visible"><g style="stroke:#fff;stroke-width:16;stroke-linecap:butt"><path d="M1305 509L1412 447"/><path d="M1297 568H1428"/><path d="M1305 625L1411 688"/></g><g fill="#fff"><path d="M1442 430L1423 462L1405 431Z"/><path d="M1452 568L1424 540V596Z"/><path d="M1439 702L1404 699L1419 672Z"/></g></svg><div class="mv-line" style="--y:882"></div><div class="mv-btn" aria-hidden="true">Siguiente</div><button class="bk" type="button" aria-label="Regresar"><span class="bk-i"><svg viewBox="0 0 36 24" aria-hidden="true"><path d="M34 12H4M14 2L3 12L14 22" fill="none" stroke-width="3.5"/></svg><b>Regresar</b></span></button></div>
+      <!-- 2.6 · Resultados: el título, el texto y las barras los completa movimiento.js según la barra de velocidad y el nombre del NPC -->
+      <div class="mv-slide" data-n="5">
+        <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M68 125H88L92 103H565L577 85"/></svg>
+        <span class="mv-tri" style="--x:90;--y:34;--w:40;--h:44" aria-hidden="true"></span>
+        <h2 class="mv mv-title" style="--x:163;--y:22">Resultados</h2>
+
+        <!-- Marcos: izquierda (tu NPC) y derecha (las tres barras) -->
+        <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true">
+          <path class="gr bk" style="stroke:#e50efa" d="M100 218L114 197H604L624 218V992L604 1014H114L100 992Z"/>
+          <path class="gr bk" style="stroke:#e50efa" d="M752 463L808 443H1764L1820 463V888L1764 907H808L752 888Z"/>
+        </svg>
+        <div class="mv-shadow3"></div>
+
+        <p class="mv mv-rl" style="--x:752;--y:90">Movimiento</p>
+        <p class="mv mv-enf" id="mvEnf" style="--x:752;--y:132"></p>
+        <p class="mv mv-dato" id="mvDato" style="--x:752;--y:247;--w:1030"></p>
+
+        <!-- Barras: data-k dice qué número muestra cada una (fps · cpm · spm) -->
+        <div class="mv-rbar" data-k="fps" style="--y:487">
+          <span class="mv-rname">FPS</span>
+          <div class="mv-rtrack"><i class="mv-rfill"></i><span class="mv-rval">24</span></div>
+          <div class="mv-rticks" aria-hidden="true"><span>2</span><span>30</span><span>60</span><span>90</span><span>120</span></div>
+        </div>
+        <div class="mv-rbar" data-k="cpm" style="--y:624">
+          <span class="mv-rname">CICLOS</span>
+          <div class="mv-rtrack"><i class="mv-rfill"></i><span class="mv-rval">60</span></div>
+          <div class="mv-rticks" aria-hidden="true"><span>2</span><span>30</span><span>60</span><span>90</span><span>120</span></div>
+        </div>
+        <div class="mv-rbar" data-k="spm" style="--y:762">
+          <span class="mv-rname">PASOS</span>
+          <div class="mv-rtrack"><i class="mv-rfill"></i><span class="mv-rval">120</span></div>
+          <div class="mv-rticks" aria-hidden="true"><span>2</span><span>60</span><span>120</span><span>180</span><span>240</span></div>
+        </div>
+
+        <div class="mv-btn" style="left:calc(1499*var(--u));top:calc(957*var(--u))" aria-hidden="true">Siguiente <svg viewBox="0 0 36 24" aria-hidden="true"><path d="M2 12H32M21 2L32 12L21 22" fill="none" stroke="#fff" stroke-width="3.5"/></svg></div>
+      </div>
+      <canvas id="mvNpc" aria-hidden="true"></canvas>
+      <div class="k-prog g" id="mvProg" role="img" aria-label="Progreso: 0%" style="--p:0"><i></i></div>
+      <p class="sr-only" id="mvSr" aria-live="polite"></p>
+    </section>
+
+    <!-- Núcleo 3 · Conciencia (NUCLEO_3_1 … NUCLEO_3_9) -->
+<section class="scene" id="conciencia" hidden data-s="0" data-d="0">
+
+  <!-- 3.1 · Antes / Ahora -->
+  <div class="c-slide" id="cs0" data-on="0">
+    <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M93 150H155L170 128H1780L1828 174"/></svg>
+    <span class="mv-tri" style="--x:107;--y:53;--w:41;--h:44" aria-hidden="true"></span>
+    <h2 class="mv mv-title" style="--x:158;--y:40">Diferencias en la IA</h2>
+    <div class="c-box antes" style="--x:208">
+      <h3><b class="a">Antes</b> <b class="b">(Tradicional)</b></h3>
+      <p>Durante décadas los NPC funcionaron con <b class="hl">sistemas pre-programados</b>. Son <b class="hl">rápidas, predecibles</b> y <b class="hl">controlables</b> por el desarrollador.</p>
+    </div>
+    <div class="c-box ahora" style="--x:1078">
+      <h3><b class="a">Ahora</b> <b class="b">(IA Generativa)</b></h3>
+      <p>Los NPC evolucionaron incorporando características que le permiten <b class="hl">emular comportamientos humanos</b> y <b class="hl">generar respuestas en el momento</b>.</p>
+    </div>
+    <img class="c-im" style="--x:208"  src="img/ia-tradicional.png" alt="Comportamientos predefinidos">
+    <img class="c-im" style="--x:1078" src="img/ia-generativa.png"  alt="Interconexiones generativas">
+    <p class="mv c-cap" style="--x:213;--y:870">Comportamientos predefinidos</p>
+    <p class="mv c-cap" style="--x:1112;--y:870">Interconexiones generativas</p>
+    <div class="mv-btn" style="--by:958" aria-hidden="true">Siguiente</div>
+  </div>
+
+  <!-- 3.2 y 3.2.1 · Cartas (Enter las da vuelta) · también es el fondo de 3.3 -->
+  <div class="c-slide" id="cs1" data-on="1 2">
+    <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M93 150H155L170 128H1780L1828 174"/></svg>
+    <span class="mv-tri" style="--x:107;--y:53;--w:41;--h:44" aria-hidden="true"></span>
+    <h2 class="mv mv-title" style="--x:158;--y:40">Diferencias en la IA</h2>
+    <p class="mv c-sub" style="--x:0;--y:165"><b class="cy">Selecciona</b> las <b class="cy">cartas</b> para darlas vuelta y descubrir la información.</p>
+    <div class="c-card" data-k="t" style="--x:275;--cc:#e51fff"><div class="back"><div class="inner"></div></div><div class="front"></div></div>
+    <div class="c-card" data-k="g" style="--x:1080;--cc:#19e6ff"><div class="back"><div class="inner"></div></div><div class="front"></div></div>
+    <span class="mv c-vs">VS</span>
+    <svg class="c-art" id="cArt" viewBox="0 0 1920 1080" aria-hidden="true"></svg>
+    <svg class="c-art c-qs" id="cQ" viewBox="0 0 1920 1080" aria-hidden="true"></svg>
+    <div class="mv-btn hide" id="cBtn1" style="--by:958" aria-hidden="true">Siguiente</div>
+    <button class="bk" type="button" aria-label="Regresar"><span class="bk-i"><svg viewBox="0 0 36 24" aria-hidden="true"><path d="M34 12H4M14 2L3 12L14 22" fill="none" stroke-width="3.5"/></svg><b>Regresar</b></span></button>
+  </div>
+
+  <!-- 3.3 · Científico sobre las cartas -->
+  <div class="c-slide" id="cs2" data-on="2">
+    <div class="c-dim"></div>
+    <img class="sci3" style="--x:1600;--y:675;--h:305" src="img/cientifico.gif" alt="">
+    <div class="floor3" style="--x:1623;--y:1005;--w:197"></div>
+    <div class="c-bub" id="cBubA" data-tail="r" style="--x:800;--y:467;--w:738;--h:273;--tl:40;--tw:650;--tf:44">
+      <svg viewBox="0 0 738 273" aria-hidden="true"><path d=""/></svg>
+      <div class="ctext"><div class="in"><span class="g"></span><span class="t"></span></div></div>
+      <div class="cnext hide"><svg viewBox="0 0 5 7" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0H2V1H3V2H4V3H5V4H4V5H3V6H2V7H0V5H1V4H2V3H1V2H0Z"/></svg></div>
+    </div>
+  </div>
+
+  <!-- 3.4 · 3.5 · 3.5.1-4 · 3.6 · Sentidos de "usuario" -->
+  <div class="c-slide" id="cs3" data-on="3 4 5">
+    <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M93 150H155L170 128H1780L1828 174"/></svg>
+    <span class="mv-tri" style="--x:107;--y:53;--w:41;--h:44" aria-hidden="true"></span>
+    <h2 class="mv mv-title" id="cSenT" style="--x:158;--y:40">Sentidos de “usuario”</h2>
+
+    <!-- detalle de un sentido (3.5.1 … 3.5.4) -->
+    <svg class="c-arcs" viewBox="0 0 1920 1080" aria-hidden="true">
+      <path d="M690 400Q745 470 690 545M725 385Q800 470 725 560"/><path d="M1230 400Q1175 470 1230 545M1195 385Q1120 470 1195 560"/>
+    </svg>
+    <div class="c-pic"><img id="cPic" alt=""></div>
+    <div class="c-info" id="cInfo"><h3 id="cInT"></h3><p id="cInP"></p> <p class="c-again"><span id="cAgT"></span><i></i></p></div>
+    
+
+    <div class="c-bar">
+      <button class="c-sense" data-i="0" aria-label="Visión"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M6 50Q50 8 94 50Q50 92 6 50Z"/><circle cx="50" cy="50" r="13"/></svg></button>
+      <button class="c-sense" data-i="1" aria-label="Audición"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M8 50H12M22 36V64M34 20V80M46 8V92M58 28V72M70 40V60M82 30V70M94 46V54"/></svg></button>
+      <button class="c-sense" data-i="2" aria-label="Olfato"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M52 8V38L34 66Q28 84 46 88H66M52 66H72"/></svg></button>
+      <button class="c-sense" data-i="3" aria-label="Tacto"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M28 56V26M42 52V12M56 52V16M70 56V30M28 56Q28 90 52 90Q74 90 78 64L90 52L82 46L70 58"/></svg></button>
+    </div>
+
+    <!-- 3.4 · científico -->
+    <div class="c-sci">
+      <img class="sci3" style="--x:95;--y:595;--h:300" src="img/cientifico.gif" alt="">
+      <div class="floor3" style="--x:100;--y:905;--w:197"></div>
+      <div class="c-bub" id="cBubB" data-tail="l" style="--x:350;--y:440;--w:540;--h:240;--tl:60;--tw:440;--tf:34">
+        <svg viewBox="0 0 522 215" aria-hidden="true"><path d=""/></svg>
+        <div class="ctext"><div class="in"><span class="g"></span><span class="t"></span></div></div>
+        <div class="cnext hide"><svg viewBox="0 0 5 7" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0H2V1H3V2H4V3H5V4H4V5H3V6H2V7H0V5H1V4H2V3H1V2H0Z"/></svg></div>
+      </div>
+      <button class="bk" type="button" aria-label="Regresar"><span class="bk-i"><svg viewBox="0 0 36 24" aria-hidden="true"><path d="M34 12H4M14 2L3 12L14 22" fill="none" stroke-width="3.5"/></svg><b>Regresar</b></span></button>
+    </div>
+
+    <!-- 3.6 · aparece cuando ya viste los 4 sentidos -->
+    <div class="c-dim c-dim2"></div>
+    <div class="c-done"><span>Sentidos completados</span></div>
+  </div>
+
+  <!-- 3.7 · Lógica clásica -->
+  <div class="c-slide" id="cs6" data-on="6">
+    <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M93 150H155L170 128H1780L1828 174"/></svg>
+    <span class="mv-tri" style="--x:107;--y:53;--w:41;--h:44" aria-hidden="true"></span>
+    <h2 class="mv mv-title" style="--x:158;--y:40">Lógica clásica</h2>
+    <p class="mv mv-p j" style="--x:100;--y:265;--w:960;--fs:44;--lh:55">Elegí una de estas dos opciones para ver al NPC en distintas situaciones: <b class="hl">vida</b> (1) o está <b class="hl">muerto</b> (0)</p>
+    <div class="c-fr" id="cFr6"></div>
+    <svg class="c-ln" viewBox="0 0 1920 1080" aria-hidden="true"><line id="cLn6" stroke-width="5"/></svg>
+    <div class="c-lab" id="cLab6"></div>
+    <div class="c-meter" id="cM6" style="--x:210;--y:718;--w:848;--h:180"><b class="c-n" style="--x:34;--y:55">0</b><b class="c-n" style="--x:804;--y:55">1</b></div>
+    <div class="mv-btn hide" id="cBtn6" aria-hidden="true">Siguiente</div>
+    <button class="bk" type="button" aria-label="Regresar"><span class="bk-i"><svg viewBox="0 0 36 24" aria-hidden="true"><path d="M34 12H4M14 2L3 12L14 22" fill="none" stroke-width="3.5"/></svg><b>Regresar</b></span></button>
+  </div>
+
+  <!-- 3.8 · Lógica difusa -->
+  <div class="c-slide" id="cs7" data-on="7">
+    <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true"><path d="M93 150H155L170 128H1780L1828 174"/></svg>
+    <span class="mv-tri" style="--x:107;--y:53;--w:41;--h:44" aria-hidden="true"></span>
+    <h2 class="mv mv-title" style="--x:158;--y:40">Lógica difusa</h2>
+    <p class="mv mv-p j" style="--x:100;--y:240;--w:980;--fs:46;--lh:55">Ahora con la lógica difusa se incorporan <b class="hl">valores medios</b>. De esta forma <b class="hl">procesa ideas humanas</b> realizando transiciones suaves y usando lenguajes natural.</p>
+    <div class="c-fr" id="cFr7"></div>
+    <svg class="c-ln" viewBox="0 0 1920 1080" aria-hidden="true"><line id="cLn7" stroke-width="5"/></svg>
+    <div class="c-lab" id="cLab7"></div>
+    <div class="c-meter" id="cM7" style="--x:210;--y:720;--w:872;--h:178"><b class="c-n" style="--x:46;--y:55">0</b><b class="c-n" style="--x:814;--y:55">1</b></div>
+    <div class="mv-btn hide" id="cBtn7" aria-hidden="true">Siguiente</div>
+  </div>
+
+  <!-- 3.9 · Elige una habilidad -->
+  <div class="c-slide" id="cs8" data-on="8">
+    <div class="k-glow"></div>
+    <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true">
+      <path d="M93 150H155L170 128H1780L1828 174"/>
+      <path class="gr bk" d="M1057 488H1722L1750 508V690L1722 710H1057"/>
+      <path class="gr" d="M1733 718H1766V700"/>
+      <path class="gr bk" d="M109 954H408L417 967V1036H123L109 1021Z"/>
+      <path class="gr" d="M101 969V945H125"/>
+      <path class="gr" d="M399 1049H425V1024"/>
+      <path class="gr" d="M148 997H178M160 984L148 997L160 1010"/>
+    </svg>
+    <span class="mv-tri" style="--x:107;--y:53;--w:41;--h:44" aria-hidden="true"></span>
+    <h2 class="mv mv-title" style="--x:158;--y:40">Elige una habilidad</h2>
+    <div class="k-fr"></div>
+    <div class="k-list" id="kList" role="listbox" aria-label="Habilidades">
+      <svg class="k-ar up" viewBox="0 0 9 4" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 0H6V1H7V2H8V3H9V4H7V3H6V2H3V3H2V4H0V3H1V2H2V1H3Z"/></svg>
+      <svg class="k-ar dn" viewBox="0 0 9 4" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 0H6V1H7V2H8V3H9V4H7V3H6V2H3V3H2V4H0V3H1V2H2V1H3Z"/></svg>
+    </div>
+    <div class="k-pan"><h3 id="kPanT"></h3><p id="kPanP"></p></div>
+    <p class="mv c-bk" style="--x:203;--y:972">Regresar</p>
+    <div class="c-back" aria-hidden="true"></div>
+  </div>
+
+  <!-- 3.10 · Resultados de la clase -->
+  <div class="c-slide" id="cs9" data-on="9">
+    <svg class="hdr" viewBox="0 0 1920 1080" aria-hidden="true">
+      <path d="M68 125H88L92 103H565L577 85"/>
+      <path class="gr bk" d="M795 162H1702L1728 186V413L1703 438H796L770 413V187Z"/>
+      <path class="gr" d="M751 177V154H787"/>
+      <path class="gr" d="M1711 448H1747V425"/>
+    </svg>
+    <span class="mv-tri" style="--x:100;--y:39;--w:40;--h:44" aria-hidden="true"></span>
+    <h2 class="mv mv-title" style="--x:163;--y:22">Resultados</h2>
+    <div class="k-fr r"></div>
+    <div class="c-sh"></div>
+    <p class="c-nm" id="cName">Nombre</p>
+    <p class="c-cls" id="cCls"></p>
+    <p class="c-dd" id="cDd"></p>
+    <div class="c-ub"></div>
+    <img class="c-sw" id="cIc" alt="">
+    <ul class="c-ls" id="cLs"></ul>
+    <div class="mv-btn" aria-hidden="true">Siguiente <svg viewBox="0 0 36 24" aria-hidden="true"><path d="M2 12H32M21 2L32 12L21 22" fill="none" stroke="#fff" stroke-width="3.5"/></svg></div>
+  </div>
+
+  <div class="k-prog g" id="cProg" role="img" aria-label="Progreso: 0%" style="--p:0"><i></i></div>
+  <!-- El NPC (TALLER.obj): el mismo canvas se mueve a la pantalla que lo necesita -->
+  <canvas id="cNpc" role="img" aria-label="Tu NPC en 3D"></canvas>
+  <p class="sr-only" id="cSr" aria-live="polite"></p>
+</section>
+    <!-- Despedida del científico: aparece después de Resultados de cada núcleo (lo maneja despedida.js) -->
+    <section class="scene" id="despedida" hidden>
+      <div class="dp-dim"></div>
+      <img class="dp-sci" id="dpSci" src="img/cientifico.gif" alt="">
+      <img class="dp-hand" id="dpHand" alt="">
+      <div id="dpItems"></div>
+      <div class="dp-bub" id="dpBub">
+        <svg viewBox="0 0 10 10" aria-hidden="true"><path d=""/></svg>
+        <div class="dp-text"><div class="in"><span class="g" id="dpG"></span><span class="t" id="dpT"></span></div></div>
+        <div class="dp-next hide" id="dpNext"><svg viewBox="0 0 5 7" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0H2V1H3V2H4V3H5V4H4V5H3V6H2V7H0V5H1V4H2V3H1V2H0Z"/></svg></div>
+      </div>
+      <p class="sr-only" id="dpSr" aria-live="polite"></p>
+    </section>
+
+<!-- Pantalla final: aparece al terminar los 3 núcleos (final.js la completa con lo que elegiste) -->
+<section class="scene" id="final" hidden>
+  <svg class="fn-art" viewBox="0 0 1920 1080" aria-hidden="true">
+    <defs>
+      <linearGradient id="fgG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#062208"/><stop offset=".55" stop-color="#0a4a08"/><stop offset="1" stop-color="#0f6a0d"/></linearGradient>
+      <linearGradient id="fgM" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a0fa6"/><stop offset=".6" stop-color="#3a0a55"/><stop offset="1" stop-color="#1a0630"/></linearGradient>
+      <linearGradient id="fgB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a14b8"/><stop offset=".6" stop-color="#07106a"/><stop offset="1" stop-color="#050a3a"/></linearGradient>
+    </defs>
+    <path d="M68 153H88L95 138H870L894 116" fill="none" stroke="#fff" stroke-width="3"/>
+    <path d="M68 192L83 177H427L442 192V1022L427 1037H83L68 1022Z" fill="rgba(0,0,0,.55)" stroke="#fff" stroke-width="3"/>
+    <path d="M110 927H403" stroke="#fff" stroke-width="2"/>
+    <path d="M478 192L493 177H901L916 192V797L901 812H493L478 797Z" fill="url(#fgG)" stroke="#1EFF00" stroke-width="4"/>
+    <path d="M952 192L967 177H1375L1390 192V797L1375 812H967L952 797Z" fill="url(#fgM)" stroke="#E90BFB" stroke-width="4"/>
+    <path d="M1426 192L1441 177H1849L1864 192V797L1849 812H1441L1426 797Z" fill="url(#fgB)" stroke="#0015FF" stroke-width="4"/>
+    <path d="M478 850L493 835H1849L1864 850V1016L1849 1031H493L478 1016Z" fill="#000" stroke="#fff" stroke-width="3"/>
+  </svg>
+
+  <span class="mv-tri" style="--x:70;--y:67;--w:40;--h:44;background:#fff" aria-hidden="true"></span>
+  <h2 class="mv mv-title" style="--x:128;--y:50">Tu NPC está listo</h2>
+  <p class="fn-name" id="fnName">Nombre</p>
+
+  <!-- Personalidad -->
+  <span class="mv-tri" style="--x:526;--y:217;--w:22;--h:26;background:#1a2cff" aria-hidden="true"></span>
+  <p class="fn-t fn-lab" style="--x:557;--y:215">Personalidad</p>
+  <p class="fn-t fn-big" id="fnPt" style="--x:524;--y:262"></p>
+  <p class="fn-t fn-dsc" id="fnPd" style="--x:524;--y:330"></p>
+  <div class="fn-dots" id="fnDots"></div>
+  <p class="fn-t fn-sub" style="--x:524;--y:628">Cómo se expresa</p>
+  <div class="fn-bar" id="fnBar"></div>
+  <ul class="fn-leg" id="fnLeg"></ul>
+
+  <!-- Movimiento -->
+  <span class="mv-tri" style="--x:997;--y:217;--w:22;--h:26;background:#E90BFB" aria-hidden="true"></span>
+  <p class="fn-t fn-lab" style="--x:1029;--y:215">Movimiento</p>
+  <p class="fn-t fn-big" id="fnMt" style="--x:996;--y:262"></p>
+  <p class="fn-t fn-dsc" id="fnMd" style="--x:996;--y:330"></p>
+
+  <!-- Conciencia -->
+  <span class="mv-tri" style="--x:1474;--y:217;--w:22;--h:26;background:#0015FF" aria-hidden="true"></span>
+  <p class="fn-t fn-lab" style="--x:1505;--y:215">Conciencia</p>
+  <p class="fn-t fn-big" id="fnCt" style="--x:1472;--y:262"></p>
+  <p class="fn-t fn-dsc" id="fnCd" style="--x:1472;--y:330"></p>
+  <div class="fn-bars" id="fnBars"></div>
+  <div class="fn-weap" id="fnWeap"></div>
+
+  <button class="fn-run" id="fnRun" type="button">Correr</button>
+
+  <!-- Llevate a tu NPC -->
+  <img class="fn-qr" src="img/qr.png" alt="QR" onerror="this.removeAttribute('src')">
+  <p class="fn-t fn-q1" style="--x:698;--y:848">Llevate a tu NPC</p>
+  <p class="fn-t fn-q2" style="--x:698;--y:922">Escaneá el código para guardarlo en tu celular y compartirlo.</p>
+  <button class="fn-fin" id="fnFin" type="button">Finalizar <svg viewBox="0 0 36 24" aria-hidden="true"><path d="M2 12H32M21 2L32 12L21 22" fill="none" stroke="#fff" stroke-width="3.5"/></svg></button>
+  <p class="sr-only" id="fnSr" aria-live="polite"></p>
+</section>
+    
+  </div>
+  <!-- Capa CRT global: va por encima de todas las escenas -->
+  <div class="crt" aria-hidden="true">
+    <div class="mask"></div><div class="scan"></div><canvas class="noise" id="noise" width="213" height="120"></canvas>
+    <div class="roll"></div><div class="vig"></div>
+  </div>
+
+</main>
+
+<!-- Botón para elegir el puerto del Arduino (se oculta al conectar; también sirve la tecla C) -->
+<button id="arduinoBtn" type="button">Conectar Arduino (C)</button>
+
+<!-- Módulos del juego (cada núcleo tiene el suyo; se hablan por eventos, mirá el mapa en script.js) -->
+<script type="module" src="script.js"></script>          <!-- inicio, tutorial, menú de núcleos y tecla R -->
+<script type="module" src="personalidad.js"></script>    <!-- núcleo 1 · peinado y atuendo -->
+<script type="module" src="rasgos.js"></script>          <!-- núcleo 1 · personalidad y pantalla final -->
+<script type="module" src="movimiento.js"></script>      <!-- núcleo 2 · movimiento -->
+<script type="module" src="conciencia.js"></script>      <!-- núcleo 3 · conciencia -->
+<script type="module" src="arduino.js"></script>         <!-- botones del Arduino -->
+<script type="module" src="nombre.js"></script>          <!-- poner nombre al NPC (teclado virtual) -->
+<script type="module" src="tutorial2.js"></script>       <!-- tutorial de los controles (después del nombre) -->
+<script type="module" src="despedida.js"></script> 
+<script type="module" src="final.js"></script>        
+<script type="module" src="audio.js"></script>
+<script type="module" src="reset.js"></script>           <!-- botón rojo: ¿Estás seguro? y reinicio -->
+</body>
+</html>
