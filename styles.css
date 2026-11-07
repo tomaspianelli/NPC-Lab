@@ -1414,3 +1414,19 @@ svg.mv{width:calc(var(--w)*var(--u));height:calc(var(--h)*var(--u));overflow:vis
 /* QR más grande */
 #final .fn-qr{top:calc(852*var(--u))!important;width:calc(165*var(--u))!important;height:calc(165*var(--u))!important}
 #final .fn-q1,#final .fn-q2{left:calc(720*var(--u))!important}
+
+/* Byte entra caminando hacia adelante (pantalla "Soy Byte") */
+#tutorial .slide:nth-child(2) .sci3{
+  transform-origin:50% 100%;
+  animation:byteWalk 2.2s linear forwards}
+@keyframes byteWalk{
+  0%{transform:scale(.35);opacity:0}
+  8%{opacity:1}
+  100%{transform:scale(1);opacity:1}}
+
+/* El globo aparece cuando Byte ya llegó */
+#tutorial .slide:nth-child(2) .b3{animation:byteBub .01s steps(20,end) 2.2s both}
+@keyframes byteBub{from{opacity:0}to{opacity:1}}
+
+@media (prefers-reduced-motion:reduce){
+  #tutorial .slide:nth-child(2) .sci3{animation:none}}
